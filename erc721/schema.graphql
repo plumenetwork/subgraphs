@@ -1,5 +1,6 @@
 type Token @entity {
   id: ID!
+  tokenId: String!
   owner: Owner!
   uri: String!
   contract: Contract!
@@ -13,6 +14,6 @@ type Contract @entity {
   id: ID!
   name: String!
   symbol: String!
-  totalSupply: BigInt!
+  totalSupply: BigInt
   mintedTokens: [Token!]! @derivedFrom(field: "contract")
 }
