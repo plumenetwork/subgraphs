@@ -1,0 +1,26 @@
+specVersion: 0.0.4
+description: ERC-20 subgraph with event handlers & entities
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Erc721
+    network: plume-testnet
+    source:
+      abi: Erc721
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Owner
+        - Contract
+      abis:
+        - name: Erc721
+          file: ./abis/Erc721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts
