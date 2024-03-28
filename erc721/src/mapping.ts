@@ -48,7 +48,9 @@ export function handleTransfer(event: TransferEvent): void {
     contract.save();
 
     if (!token) {
-        token = new Token(tokenId);
+        let id = tokenId + '-' + contract.id;
+        token = new Token(id);
+        token.tokenId = tokenId;
         token.contract = contract.id;
 
         let uri = instance.try_tokenURI(event.params.tokenId);
