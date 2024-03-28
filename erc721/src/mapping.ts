@@ -5,23 +5,20 @@ import { Token, Owner, Contract } from '../generated/schema';
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export function handleTransfer(event: TransferEvent): void {
-    let from = event.params.from.toHexString();
     let to = event.params.to.toHexString();
     let tokenId = event.params.tokenId.toHexString();
     let contractAddress = event.address.toHex();
-
-    log.debug('Transfer detected. From: {} | To: {} | TokenID: {}', [
-        from,
-        to,
-        tokenId,
-    ]);
 
     let newOwner = Owner.load(to);
     let token = Token.load(tokenId);
     let contract = Contract.load(contractAddress);
     let instance = Erc721.bind(event.address);
 
-    if (!newOwner && to != ZERO_ADDRESS) {
+    if (to == ZERO_ADDRESS) {
+        return;
+    }
+
+    if (!newOwner) {
         newOwner = new Owner(to);
         newOwner.save();
     }
@@ -48,7 +45,7 @@ export function handleTransfer(event: TransferEvent): void {
     contract.save();
 
     if (!token) {
-        let id = tokenId + '-' + contract.id;
+        let id = contract.id + '-' + tokenId ;
         token = new Token(id);
         token.tokenId = tokenId;
         token.contract = contract.id;
@@ -59,12 +56,6 @@ export function handleTransfer(event: TransferEvent): void {
         }
     }
 
-    token.owner = newOwner ? newOwner.id : event.params.to.toHexString();
+    token.owner = to;
     token.save();
-
-    log.debug('tokenID: {} | owner: {} | contractId: {}', [
-        token.id,
-        token.owner,
-        token.contract,
-    ]);
 }
