@@ -5,42 +5,29 @@ import { Token, Owner, Contract } from '../generated/schema';
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export function handleTransfer(event: TransferEvent): void {
+    let from = event.params.from.toHexString();
+    let to = event.params.to.toHexString();
+    let tokenId = event.params.tokenId.toHexString();
+    let contractAddress = event.address.toHex();
+
     log.debug('Transfer detected. From: {} | To: {} | TokenID: {}', [
-        event.params.from.toHexString(),
-        event.params.to.toHexString(),
-        event.params.tokenId.toHexString(),
+        from,
+        to,
+        tokenId,
     ]);
 
-    let previousOwner = Owner.load(event.params.from.toHexString());
-    let newOwner = Owner.load(event.params.to.toHexString());
-    let token = Token.load(event.params.tokenId.toHexString());
-    let contract = Contract.load(event.address.toHexString());
+    let newOwner = Owner.load(to);
+    let token = Token.load(tokenId);
+    let contract = Contract.load(contractAddress);
     let instance = Erc721.bind(event.address);
 
-    if (previousOwner == null && event.params.from.toHexString() != ZERO_ADDRESS) {
-        previousOwner = new Owner(event.params.from.toHexString());
-        previousOwner.save();
-    }
-
-    if (newOwner == null && event.params.to.toHexString() != ZERO_ADDRESS) {
-        newOwner = new Owner(event.params.to.toHexString());
+    if (!newOwner && to != ZERO_ADDRESS) {
+        newOwner = new Owner(to);
         newOwner.save();
     }
 
-    if (token == null) {
-        token = new Token(event.params.tokenId.toHexString());
-        token.contract = event.address.toHexString();
-
-        let uri = instance.try_tokenURI(event.params.tokenId);
-        if (!uri.reverted) {
-            token.uri = uri.value;
-        }
-    }
-
-    token.owner = event.params.to.toHexString();
-
-    if (contract == null) {
-        contract = new Contract(event.address.toHexString());
+    if (!contract) {
+        contract = new Contract(contractAddress);
     }
 
     let name = instance.try_name();
@@ -58,6 +45,24 @@ export function handleTransfer(event: TransferEvent): void {
         contract.totalSupply = totalSupply.value;
     }
 
-    token.save();
     contract.save();
+
+    if (!token) {
+        token = new Token(tokenId);
+        token.contract = contract.id;
+
+        let uri = instance.try_tokenURI(event.params.tokenId);
+        if (!uri.reverted) {
+            token.uri = uri.value;
+        }
+    }
+
+    token.owner = newOwner ? newOwner.id : event.params.to.toHexString();
+    token.save();
+
+    log.debug('tokenID: {} | owner: {} | contractId: {}', [
+        token.id,
+        token.owner,
+        token.contract,
+    ]);
 }
