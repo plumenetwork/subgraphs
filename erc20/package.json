@@ -1,0 +1,16 @@
+{
+  "name": "plume-subgraph",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "codegen": "rm -rf generated && graph codegen",
+    "build": "rm -rf build && graph build"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.68.0",
+    "@graphprotocol/graph-ts": "^0.33.0"
+  }
+}
