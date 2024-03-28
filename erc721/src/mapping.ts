@@ -2,6 +2,8 @@ import { log, BigInt } from '@graphprotocol/graph-ts';
 import { Erc721, Transfer as TransferEvent } from '../generated/ERC721/ERC721';
 import { Token, Owner, Contract } from '../generated/schema';
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 export function handleTransfer(event: TransferEvent): void {
     log.debug('Transfer detected. From: {} | To: {} | TokenID: {}', [
         event.params.from.toHexString(),
@@ -15,12 +17,14 @@ export function handleTransfer(event: TransferEvent): void {
     let contract = Contract.load(event.address.toHexString());
     let instance = Erc721.bind(event.address);
 
-    if (previousOwner == null) {
+    if (previousOwner == null && event.params.from.toHexString() != ZERO_ADDRESS) {
         previousOwner = new Owner(event.params.from.toHexString());
+        previousOwner.save();
     }
 
-    if (newOwner == null) {
+    if (newOwner == null && event.params.to.toHexString() != ZERO_ADDRESS) {
         newOwner = new Owner(event.params.to.toHexString());
+        newOwner.save();
     }
 
     if (token == null) {
@@ -54,8 +58,6 @@ export function handleTransfer(event: TransferEvent): void {
         contract.totalSupply = totalSupply.value;
     }
 
-    previousOwner.save();
-    newOwner.save();
     token.save();
     contract.save();
 }
