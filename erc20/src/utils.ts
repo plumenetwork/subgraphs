@@ -11,7 +11,7 @@ export function fetchTokenDetails(event: ethereum.Event): Token | null {
 
         token.name = "N/A";
         token.symbol = "N/A";
-        token.decimals = BigDecimal.fromString("0");
+        token.decimals = 0;
 
         let erc20 = Erc20.bind(event.address);
 
@@ -27,7 +27,7 @@ export function fetchTokenDetails(event: ethereum.Event): Token | null {
 
         let tokenDecimal = erc20.try_decimals();
         if (!tokenDecimal.reverted) {
-            token.decimals = BigDecimal.fromString(tokenDecimal.value.toString());
+            token.decimals = tokenDecimal.value;
         }
 
         token.save();
@@ -52,7 +52,7 @@ export function updateTokenBalance(
     if (ZERO_ADDRESS == account.id) return;
 
     let accountBalance = getOrCreateAccountBalance(account, token);
-    let balance = accountBalance.amount.plus(bigIntToBigDecimal(amount));
+    let balance = accountBalance.amount.plus(bigIntToBigDecimal(amount, token.decimals));
 
     accountBalance.amount = balance;
     accountBalance.save();
@@ -77,7 +77,7 @@ function getOrCreateAccountBalance(
     return tokenBalance;
 }
 
-function bigIntToBigDecimal(quantity: BigInt, decimals: i32 = 18): BigDecimal {
+function bigIntToBigDecimal(quantity: BigInt, decimals: i32): BigDecimal {
     return quantity.divDecimal(
         BigInt.fromI32(10)
             .pow(decimals as u8)
