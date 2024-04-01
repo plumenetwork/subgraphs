@@ -1,4 +1,4 @@
-import { log, BigInt } from '@graphprotocol/graph-ts';
+import { store } from '@graphprotocol/graph-ts';
 import { Erc721, Transfer as TransferEvent } from '../generated/ERC721/ERC721';
 import { Token, Owner, Contract } from '../generated/schema';
 
@@ -14,17 +14,19 @@ export function handleTransfer(event: TransferEvent): void {
     let contract = Contract.load(contractAddress);
     let instance = Erc721.bind(event.address);
 
+    if (!contract) {
+        contract = new Contract(contractAddress);
+    }
+
     if (to == ZERO_ADDRESS) {
+        let id = contract.id + '-' + tokenId ;
+        store.remove('Token', id);
         return;
     }
 
     if (!newOwner) {
         newOwner = new Owner(to);
         newOwner.save();
-    }
-
-    if (!contract) {
-        contract = new Contract(contractAddress);
     }
 
     let name = instance.try_name();
