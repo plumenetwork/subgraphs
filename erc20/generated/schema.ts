@@ -136,6 +136,23 @@ export class Token extends Entity {
       "balances",
     );
   }
+
+  get lastBlockHash(): string | null {
+    let value = this.get("lastBlockHash");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lastBlockHash(value: string | null) {
+    if (!value) {
+      this.unset("lastBlockHash");
+    } else {
+      this.set("lastBlockHash", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class TokenBalance extends Entity {

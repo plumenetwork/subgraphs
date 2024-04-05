@@ -25,4 +25,7 @@ export function handleTransfer(event: Transfer): void {
     );
 
     updateTokenBalance(token, toAccount, event.params.value);
+
+    token.lastBlockHash = event.block.hash.toHex();
+    token.save();
 }
