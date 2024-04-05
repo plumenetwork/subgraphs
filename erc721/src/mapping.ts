@@ -44,6 +44,8 @@ export function handleTransfer(event: TransferEvent): void {
         contract.totalSupply = totalSupply.value;
     }
 
+    contract.lastBlockHash = event.block.hash.toHex();
+
     contract.save();
 
     if (!token) {
