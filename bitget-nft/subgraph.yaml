@@ -1,0 +1,26 @@
+specVersion: 0.0.4
+description: Bitget-NFT
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Bitget
+    network: plume-testnet
+    source:
+      address: "0x4383B172d7102A5c74dc3AB5d53690e42b73E174"
+      abi: Bitget
+      startBlock: 893
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - Token
+      abis:
+        - name: Bitget
+          file: ./abis/Bitget.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts
