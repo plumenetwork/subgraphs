@@ -1,0 +1,8 @@
+{
+    "network": "plume-testnet",
+    "address": "0x4383B172d7102A5c74dc3AB5d53690e42b73E174",
+    "startBlock": 893,
+    "file": "Bitget",
+    "tokenEvent": "Transfer(indexed address,indexed address,indexed uint256)"
+  }
+  
