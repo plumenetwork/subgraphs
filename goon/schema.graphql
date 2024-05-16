@@ -1,0 +1,12 @@
+type User @entity {
+  id: ID!
+  streakCount: BigInt!
+  reRolls: BigInt!
+  checkIns: [CheckIn!] @derivedFrom(field: "user")
+}
+
+type CheckIn @entity {
+  id: ID!
+  user: User!
+  timestamp: BigInt!
+}

@@ -1,0 +1,26 @@
+specVersion: 0.0.4
+description: Checkin
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Checkin
+    network: plume-testnet
+    source:
+      address: "0x4383B172d7102A5c74dc3AB5d53690e42b73E174"
+      abi: Checkin
+      startBlock: 893
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Checkin
+      abis:
+        - name: Checkin
+          file: ./abis/Checkin.json
+      eventHandlers:
+        - event: CheckInEvent(address,uint16,uint8,uint8)
+          handler: handleCheckInEvent
+      file: ./src/mapping.ts
